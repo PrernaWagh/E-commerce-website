@@ -1,0 +1,255 @@
+<!DOCTYPE html>
+<html lang="en">
+{% load static %}
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+
+    <script src="https://code.jquery.com/jquery-3.4.1.js" integrity="sha256-WpOohJOqMqqyKL9FccASB9O0KwACQJpFTUBLTYOVvVU=" crossorigin="anonymous"></script>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+
+
+    <link rel="stylesheet" href="{% static 'shop/style.css' %}">
+    <title>E-commerce site</title>
+</head>
+
+<body>
+    <div class="container-fluid px-0">
+        <!-- Navigation Bar -->
+        <nav class="navbar navbar-expand-lg navbar-dark" style="background-color: #343a40;">
+            <div class="container">
+                <a class="navbar-brand font-weight-bold" href="#" style="font-size: 1.5rem;">ABC Shopping</a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav mr-auto">
+                        <li class="nav-item active">
+                            <a class="nav-link" href="#">Home</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">Products</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="#">About</a>
+                        </li>
+                    </ul>
+                    <div class="d-flex align-items-center">
+                        <button id="cart" type="button" class="btn mr-3" 
+                                style="background-color: rgb(230, 230, 16); color: #333; font-weight: 600;"
+                                data-toggle="popover" 
+                                data-placement="bottom" 
+                                data-html="true" 
+                                data-content="">
+                            <i class="fas fa-shopping-cart mr-2"></i>Cart (<span id="cart-count">0</span>)
+                        </button>
+                        <a href="{% url 'logout' %}" class="btn" style="background-color: rgb(230, 230, 16); color: #333; font-weight: 600;">
+                            Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </nav>
+    
+        <!-- Search Bar -->
+        <div class="container mt-4">
+            <div class="row justify-content-center">
+                <div class="col-md-8">
+                    <form class="card card-sm bg-white border-0 shadow-sm">
+                        <div class="card-body row no-gutters align-items-center">
+                            <div class="col">
+                                <div class="input-group">
+                                    <input type="search" name="item_name" placeholder="Search for products..." 
+                                           class="form-control form-control-lg border-0" 
+                                           style="border-radius: 8px 0 0 8px;">
+                                    <div class="input-group-append">
+                                        <button class="btn btn-lg" type="submit" 
+                                                style="background-color: rgb(230, 230, 16); border-radius: 0 8px 8px 0;">
+                                            <i class="fas fa-search"></i> Search
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    
+        <!-- Product Grid -->
+        <div class="container my-5">
+            <div class="row">
+                {% for product in product_objects %}
+                <div class="col-md-3 mb-4">
+                    <div class="card h-100 border-0 shadow-sm" style="border-radius: 12px; overflow: hidden;">
+                        <img src="{{ product.image }}" class="card-img-top" style="height: 200px; object-fit: contain; background: #f8f9fa;">
+                        <div class="card-body d-flex flex-column">
+                            <h5 id="nm{{product.id}}" class="card-title font-weight-bold">{{ product.title }}</h5>
+                            <div id="price{{product.id}}" class="card-text text-success font-weight-bold mb-3">${{ product.price }}</div>
+                            <div class="mt-auto">
+                                <a href="/{{product.id}}" class="btn btn-block mb-2" 
+                                   style="background-color: #f8f9fa; color: #333; border: 1px solid #ddd;">
+                                    <i class="far fa-eye mr-2"></i>View Details
+                                </a>
+                                <button id="{{product.id}}" class="btn btn-block atc" 
+                                        style="background-color: rgb(230, 230, 16); color: #333; font-weight: 600;">
+                                    <i class="fas fa-cart-plus mr-2"></i>Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    
+        <!-- Pagination -->
+        <div class="container mb-5">
+            <div class="row">
+                <div class="col-12">
+                    <nav aria-label="Page navigation">
+                        <ul class="pagination justify-content-center">
+                            {% if product_objects.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ product_objects.previous_page_number }}" 
+                                   style="color: #333; border-color: #ddd;">
+                                    <i class="fas fa-chevron-left"></i> Previous
+                                </a>
+                            </li>
+                            {% endif %}
+                            
+                            <li class="page-item active">
+                                <a class="page-link" href="?page={{ product_objects.number }}" 
+                                   style="background-color: rgb(230, 230, 16); border-color: rgb(230, 230, 16); color: #333;">
+                                    {{ product_objects.number }}
+                                </a>
+                            </li>
+                            
+                            {% if product_objects.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ product_objects.next_page_number }}" 
+                                   style="color: #333; border-color: #ddd;">
+                                    Next <i class="fas fa-chevron-right"></i>
+                                </a>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    
+    <style>
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        .navbar {
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+        
+        .page-link {
+            margin: 0 5px;
+            border-radius: 8px !important;
+        }
+        
+        .page-item.active .page-link {
+            font-weight: 600;
+        }
+    </style>
+</body>
+<script type="text/javascript">
+    console.log('This is working');
+
+    if (localStorage.getItem('cart') == null) {
+        var cart = {};
+    } else {
+        cart = JSON.parse(localStorage.getItem('cart'));
+    }
+
+    // Update cart count on page load
+    function updateCartCount() {
+        document.getElementById("cart").innerHTML = "Cart(" + Object.keys(cart).length + ")";
+    }
+
+    // Display cart contents in popover
+    function DisplayCart(cart) {
+        var cartString = "<h5>This is your cart</h5>";
+        var cartIndex = 1;
+        var total = 0;
+        
+        for (var x in cart) {
+            cartString += cartIndex + ". " + cart[x][1] + " Qty: " + cart[x][0] + " Price: $" + cart[x][2] + "<br>";
+            total += cart[x][2];
+            cartIndex += 1;
+        }
+
+        if (cartIndex === 1) {
+            cartString = "<h5>Cart is Empty</h5>";
+        } else {
+            cartString += "<br><strong>Total: $" + total.toFixed(2) + "</strong><br>";
+            cartString += "<a href='/checkout' class='btn btn-warning btn-sm mt-2'>Checkout</a>";
+        }
+
+        document.getElementById("cart").setAttribute('data-content', cartString);
+        $('[data-toggle="popover"]').popover();
+    }
+
+    // Add to cart click handler
+    $(document).on('click', '.atc', function() {
+        var item_id = this.id.toString();
+        console.log(item_id);
+
+        if (cart[item_id] != undefined) {
+            quantity = cart[item_id][0] + 1;
+            cart[item_id][0] = quantity;
+            cart[item_id][2] = cart[item_id][2] + parseFloat(document.getElementById("price" + item_id).innerHTML);
+        } else {
+            quantity = 1;
+            price = parseFloat(document.getElementById("price" + item_id).innerHTML);
+            name = document.getElementById("nm" + item_id).innerHTML;
+            cart[item_id] = [quantity, name, price];
+        }
+
+        localStorage.setItem('cart', JSON.stringify(cart));
+        updateCartCount();
+        DisplayCart(cart);
+    });
+
+    // Initialize popover
+    $(document).ready(function() {
+        updateCartCount();
+        DisplayCart(cart);
+        
+        // Initialize Bootstrap popover
+        $('[data-toggle="popover"]').popover({
+            html: true,
+            placement: 'bottom'
+        });
+    });
+</script>
+
+</html>
